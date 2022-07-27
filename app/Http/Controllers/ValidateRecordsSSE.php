@@ -45,8 +45,9 @@ class ValidateRecordsSSE extends Controller
             });
             $batch = $batch->name('Validate Records')->dispatch();
 
+
             while($loop) {
-                echo "date: {$batch->failedJobs}\n\n";
+                echo "date: {$batch->finished()}\n\n";
 
                 ob_flush();
                 flush();

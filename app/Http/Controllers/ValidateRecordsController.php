@@ -38,10 +38,6 @@ class ValidateRecordsController extends Controller
             $batch->add(new \App\Jobs\ValidateRecords($record));
         }
 
-
-
-
-
         return response()->json([
             'status' => true,
             'details' => $batch->name('Validate Records')->dispatch(),

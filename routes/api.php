@@ -26,6 +26,7 @@ Route::get('validate_records', \App\Http\Controllers\ValidateRecordsController::
 Route::get('insert_records', \App\Http\Controllers\InsertRecordsController::class)->name('insert-records');
 Route::get('process_records', \App\Http\Controllers\ProcessRecordsController::class)->name('process-records');
 
+Route::get('validate_status_sse', [\App\Http\Controllers\StatusController::class,'validateStatusSSE'] )->name('validate-status-sse');
 Route::get('validate_status', [\App\Http\Controllers\StatusController::class,'validateStatus'] )->name('validate-status');
 Route::get('process_status', [\App\Http\Controllers\StatusController::class,'processStatus'] )->name('process-status');
 Route::get('insert_status', [\App\Http\Controllers\StatusController::class,'insertStatus'] )->name('insert-status');

@@ -8,7 +8,8 @@ import {
 import {
     onMounted,
     reactive,
-    ref
+    ref,
+    watch
 } from "vue";
 import {
     Inertia
@@ -26,11 +27,52 @@ const showDialog = () => {
     this.display = !display;
 };
 
-onMounted(() => {
+watch(()=> validationBatchId.value, () => {
+    if(validationBatchId.value !== undefined && validationBatchId.value != null) {
+        console.log('Batch ID: ' + validationBatchId.value);
+        setupValidateStateStream();
+    }
+});
 
+onMounted(() => {
     checkStage();
 });
 
+const setupValidateStateStream = () => {
+    // Not a real URL, just using for demo purposes
+    progessMessage.value = 'Validating Records...';
+    let x = "http://scilifevue.test/api/validate_status_sse?batch_id=" + validationBatchId.value;
+    let es = new EventSource(x);
+
+    es.addEventListener('message', event => {
+        console.log(event.data);
+        let data = JSON.parse(event.data);
+        progessMessage.value = data.message;
+        progressTotal.value = parseInt(data.total);
+        progressValue.value = parseInt(data.progress);
+    }, false);
+
+    es.addEventListener('error', event => {
+        if (event.readyState == EventSource.CLOSED) {
+            progessMessage.value = 'Validation Failed';
+            progressValue.value = 0;
+            validationBatchId.value = null;
+            checkStage();
+            es.close();
+        }
+    }, false);
+
+    es.addEventListener('close', event => {
+        let data = JSON.parse(event.data);
+        progessMessage.value = 'Validation Completed';
+        progressValue.value = 100;
+        failedRecords.value = parseInt(data.failed_records);
+        successRecords.value = parseInt(data.success_records);
+        validationBatchId.value = null;
+        checkStage();
+        es.close();
+    }, false);
+}
 const checkStage = () => {
     return axios.get(route('process-stage')).then((response) => {
         if (response.status === 200) {
@@ -58,7 +100,7 @@ const startValidatingRecords = (event) => {
             progessMessage.value = 'Validating Records...';
             progressValue.value = 0;
             checkStage();
-            validateStatus(response.data.details.id)
+            validationBatchId.value = response.data.details.id;
         }
     }).catch((error) => {
         console.log(error);

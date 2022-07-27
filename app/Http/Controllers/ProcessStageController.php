@@ -45,7 +45,6 @@ class ProcessStageController extends Controller
         $file = new \SplFileObject($filepath,'r');
         $file->seek(PHP_INT_MAX);
         $count_line = $file->key();
-        Log::debug($count_line);
         } catch (\Exception $e) {
             return false;
         }
